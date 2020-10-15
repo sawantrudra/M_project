@@ -1,0 +1,32 @@
+version: '2'
+services:
+    mysql:
+      image: mysql
+      volumes:
+         - ./sql:/docker-entrypoint-initdb.d
+      restart: always
+      environment:
+         MYSQL_DATABASE: 'bider'
+         MYSQL_USER: 'admin'
+         MYSQL_PASSWORD: '7875363676_Rudra'
+         MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+    ui:
+      image: nginx
+      ports:
+        - 4200:4200
+      volumes:
+        - ./dist/:/usr/share/nginx/html
+        - ./nginx.conf:/etc/nginx/nginx.conf
+      restart: always
+    api:
+       image: openjdk:8-jre-slim
+       volumes: 
+         - ./api:/api
+       entrypoint: java -jar api/bider-0.0.1-SNAPSHOT.jar
+       ports:
+         - 8080:8080
+       depends_on:
+         - mysql
+       environment:
+          WAIT_HOSTS: mysql:3306
+       restart: always
